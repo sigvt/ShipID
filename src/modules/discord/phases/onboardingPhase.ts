@@ -1,8 +1,8 @@
 import { Message } from "discord.js";
 import jwt from "jsonwebtoken";
-import { JwtToken } from "/@/auth";
-import { HOST, JWT_SECRET } from "/@/constants";
-import { log } from "/@/util";
+import { JwtToken } from "../../../auth";
+import { HOST, JWT_SECRET } from "../../../constants";
+import { log } from "../../../util";
 
 export function onboardingPhase(message: Message) {
   log("onboardingPhase");

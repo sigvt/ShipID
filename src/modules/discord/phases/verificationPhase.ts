@@ -1,8 +1,8 @@
 import { Message } from "discord.js";
 import { RoleChangeset } from "../interfaces";
-import { getRoleMapsForGuild } from "/@/db";
-import { User } from "/@/models/user";
-import { Honeybee } from "/@/modules/honeybee";
+import { getRoleMapsForGuild } from "../../../db";
+import { User } from "../../../models/user";
+import { Honeybee } from "../../../modules/honeybee";
 
 export async function verificationPhase(
   message: Message,

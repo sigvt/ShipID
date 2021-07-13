@@ -1,8 +1,8 @@
 import Discord from "discord.js";
 import { commands } from "./commands";
-import { HB_MONGO_URI } from "/@/constants";
-import { Honeybee } from "/@/modules/honeybee";
-import { log } from "/@/util";
+import { HB_MONGO_URI } from "../../constants";
+import { Honeybee } from "../../modules/honeybee";
+import { log } from "../../util";
 
 export function createBot({ prefix }: { prefix: string }) {
   const hb = new Honeybee(HB_MONGO_URI);

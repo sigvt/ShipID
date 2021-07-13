@@ -1,5 +1,5 @@
 import Discord from "discord.js";
-import { Honeybee } from "/@/modules/honeybee";
+import { Honeybee } from "../../modules/honeybee";
 
 export interface HandlerOptions {
   message: Discord.Message;

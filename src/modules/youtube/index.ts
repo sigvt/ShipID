@@ -1,9 +1,9 @@
 import { Request, Response, Router } from "express";
 import { Auth, google, youtube_v3 } from "googleapis";
 import jwt from "jsonwebtoken";
-import { JwtToken } from "/@/auth";
-import { JWT_SECRET } from "/@/constants";
-import UserModel from "/@/models/user";
+import { JwtToken } from "../../auth";
+import { JWT_SECRET } from "../../constants";
+import UserModel from "../../models/user";
 
 export function createYouTubeHandler({
   clientId,
