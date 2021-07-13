@@ -1,0 +1,65 @@
+{
+  "name": "shipid",
+  "description": "YouTube Membership Verification Bot for Discord",
+  "version": "0.0.0",
+  "author": "Yasuaki Uechi <y@uechi.io> (https://uechi.io/)",
+  "scripts": {
+    "build": "yarn tsup:cjs",
+    "clean": "shx rm -rf lib",
+    "dev": "yarn tsup:cjs --watch",
+    "prepare": "husky install",
+    "test": "jest",
+    "tsup:cjs": "tsup src/server.ts -d lib"
+  },
+  "main": "lib/server.js",
+  "files": [
+    "lib"
+  ],
+  "dependencies": {
+    "@googleapis/docs": "^0.2.0",
+    "@typegoose/typegoose": "^7.6.3",
+    "date-fns": "^2.22.1",
+    "debug": "^4.3.2",
+    "discord.js": "^12.5.3",
+    "express": "^4.17.1",
+    "googleapis": "^81.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.13.2"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.6",
+    "@types/express": "^4.17.13",
+    "@types/gapi": "^0.0.40",
+    "@types/jest": "^26.0.24",
+    "@types/jsonwebtoken": "^8.5.4",
+    "@types/node": "^16.3.1",
+    "husky": "^7.0.1",
+    "jest": "^27.0.6",
+    "masterchat": "^0.5.0",
+    "nodemon": "^2.0.12",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.3.2",
+    "pretty-quick": "^3.1.1",
+    "shx": "^0.3.3",
+    "ts-jest": "^27.0.3",
+    "ts-node": "^10.1.0",
+    "tsup": "^4.12.5",
+    "typescript": "^4.3.5"
+  },
+  "homepage": "https://github.com/holodata/shipid",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/holodata/shipid.git"
+  },
+  "bugs": {
+    "url": "https://github.com/holodata/shipid/issues"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "shipid"
+  ],
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
+  "private": true
+}

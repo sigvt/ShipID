@@ -1,0 +1,12 @@
+.env
+.envrc
+.husky
+.github
+.prettierrc
+jest.config.js
+*.md
+node_modules
+/lib
+/src/**/*.test.ts
+/tmp
+/data

@@ -1,0 +1,21 @@
+version: "3.1"
+
+services:
+  mongo:
+    image: mongo:4
+    restart: unless-stopped
+    volumes:
+      - ./data/mongo:/data/db
+
+  bot:
+    build: .
+    restart: unless-stopped
+    command: node ./lib/server.js
+    volumes:
+      - ./src:/usr/local/app/src
+    env_file: .env
+    environment:
+      MONGODB_URL: mongodb://mongo:27017/shipid
+      DEBUG: shipid
+    depends_on:
+      - mongo
