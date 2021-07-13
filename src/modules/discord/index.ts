@@ -6,12 +6,12 @@ import { log } from "/@/util";
 
 export function createBot({ prefix }: { prefix: string }) {
   const hb = new Honeybee(HB_MONGO_URI);
+  const prefixMatcher = new RegExp(`^${prefix}[\\s$]`);
 
   async function commandParser(message: Discord.Message) {
     try {
       if (message.author.bot) return;
-      console.log("message:", message.content);
-      if (!message.content.startsWith(prefix)) return;
+      if (!prefixMatcher.test(message.content)) return;
       const payload = message.content.slice(prefix.length + 1).split(" ");
       const commandName = payload.shift();
       const args = payload;
