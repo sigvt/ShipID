@@ -1,5 +1,5 @@
 import { Command } from "../interfaces";
 import { verify } from "./verify";
-import { pairRole } from "./pairRole";
+import { pair } from "./pair";
 
-export const commands: Command[] = [verify, pairRole];
+export const commands: Command[] = [verify, pair];

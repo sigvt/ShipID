@@ -1,14 +1,14 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export interface RoleMap {
   roleId: string;
   originChannelId: string;
 }
 
-export interface Guild {
+export interface Guild extends Document {
   guildId: string;
   roleMaps: RoleMap[];
-  createdAt: string;
+  createdAt?: Date;
 }
 
 const schema = new mongoose.Schema({

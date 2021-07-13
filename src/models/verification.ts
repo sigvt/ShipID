@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
 import { User } from "./user";
 
-export interface Verification {
+export interface Verification extends mongoose.Document {
   user: User;
   originChannelId: string;
   status: {
     isMember: boolean;
     duration: string;
   };
-  updatedAt: Date;
+  updatedAt?: Date;
 }
 
 const schema = new mongoose.Schema({
@@ -18,7 +18,7 @@ const schema = new mongoose.Schema({
     isMember: { type: Boolean, required: true },
     duration: { type: String, required: true },
   },
-  checkedAt: { type: Date, default: Date.now, required: true },
+  updatedAt: { type: Date, default: Date.now, required: true },
 });
 
 schema.index({ user: 1, originChannelId: 1 }, { unique: true });

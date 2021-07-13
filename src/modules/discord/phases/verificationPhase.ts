@@ -10,10 +10,17 @@ export async function verificationPhase(
   hb: Honeybee
 ): Promise<RoleChangeset[] | undefined> {
   const guildId = message.guild?.id;
-  if (!guildId) return;
+  if (!guildId) {
+    console.log("!guildId");
+    return;
+  }
 
   const roleMaps = await getRoleMapsForGuild(guildId);
-  if (!roleMaps) return;
+  if (!roleMaps) {
+    console.log("!roleMaps");
+    message.reply("This server is not configured yet. Ask admin first!");
+    return;
+  }
 
   let changesets = [];
   for (const rm of roleMaps) {
@@ -21,6 +28,7 @@ export async function verificationPhase(
       user.youtubeChannelId,
       rm.originChannelId
     );
+    console.log("yt status", status);
     const eligible = status !== undefined;
 
     // TODO: save cache

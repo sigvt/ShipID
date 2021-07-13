@@ -3,6 +3,7 @@ import { Auth, google, youtube_v3 } from "googleapis";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../../constants";
 import { JwtToken } from "../../auth";
+import UserModel from "../../models/user";
 
 export function createYouTubeHandler({
   clientId,
@@ -32,7 +33,7 @@ export function createYouTubeHandler({
       scope: scopes,
       state,
     });
-    console.log(authorizeUrl);
+    console.log("authUrl", authorizeUrl);
     res.redirect(authorizeUrl);
   }
 
@@ -42,9 +43,9 @@ export function createYouTubeHandler({
     if (typeof code !== "string") {
       return res.status(403).json({ error: "no valid code found" });
     }
-    const state = new URL(req.url).hash.match(/state=(.+?)[&$]/)?.[1];
-    console.log(req.url, state);
-    if (!state) {
+    const state = req.query.state;
+    console.log(state);
+    if (typeof state !== "string") {
       return res.status(403).json({ error: "no valid state found" });
     }
 
@@ -55,7 +56,7 @@ export function createYouTubeHandler({
       return res.status(403).json({ error: "no valid id_token found" });
     }
 
-    if (Date.now() - id_token.iat > 60 * 5) {
+    if (Date.now() - id_token.iat > 1000 * 60 * 5) {
       return res.status(403).json({ error: "id_token is expired" });
     }
 
@@ -84,13 +85,15 @@ export function createYouTubeHandler({
         return res.status(403).json({ error: "channel id not found" });
       }
 
-      const result = {
-        discordId,
-        youtubeChannelId: ids[0],
-      };
-      console.log(result);
+      const youtubeChannelId = ids[0];
 
-      res.json({ error: null, data: ids });
+      const user = await UserModel.create({
+        discordId,
+        youtubeChannelId,
+      });
+      console.log(user);
+
+      res.json({ error: null, message: "success. try verify command again." });
     } catch (err) {
       if (err.code === "400") {
         // invalid grant

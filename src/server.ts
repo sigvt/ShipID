@@ -1,3 +1,4 @@
+import { mongoose } from "@typegoose/typegoose";
 import express from "express";
 import http from "http";
 import {
@@ -5,11 +6,17 @@ import {
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
   HOST,
+  MONGODB_URL,
   PORT,
   PREFIX,
 } from "./constants";
 import { createBot } from "./modules/discord";
 import { createYouTubeHandler } from "./modules/youtube";
+
+mongoose.connect(MONGODB_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const bot = createBot({ prefix: PREFIX });
 

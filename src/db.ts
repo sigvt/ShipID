@@ -12,6 +12,7 @@ export async function createUser(discordId: string, youtubeChannelId: string) {
   const newUser = await UserModel.create({
     discordId,
     youtubeChannelId,
+    lastUpdate: new Date(),
   });
 
   return newUser;
@@ -23,6 +24,8 @@ export async function findOrCreateGuild(guildId: string) {
 
   const newGuild = await GuildModel.create({
     guildId,
+    roleMaps: [],
+    createdAt: new Date(),
   });
 
   return newGuild;

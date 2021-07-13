@@ -9,19 +9,21 @@ export function createBot({ prefix }: { prefix: string }) {
 
   async function commandParser(message: Discord.Message) {
     try {
+      if (message.author.bot) return;
+      console.log("message:", message.content);
       if (!message.content.startsWith(prefix)) return;
       const payload = message.content.slice(prefix.length + 1).split(" ");
       const commandName = payload.shift();
       const args = payload;
 
       if (!commandName) return;
-      log(`command: ${commandName} [${payload}]`);
+      console.log(`command: ${commandName}`, payload);
 
       const command = commands.find(
         (command) => command.command === commandName
       );
       if (!command) {
-        return message.reply(`Unrecognized command: ${commandName}`);
+        return message.reply(`unrecognized command: ${commandName}`);
       }
 
       await command.handler({ message, command: commandName, args, hb });

@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
-export interface User {
+export interface User extends mongoose.Document {
   discordId: string;
   youtubeChannelId: string;
-  lastUpdate: string;
+  lastUpdate?: Date;
 }
 
 const schema = new mongoose.Schema({
