@@ -1,6 +1,4 @@
 .vscode
-package-lock.json
-yarn.lock
 .envrc
 /lib
 /tmp

@@ -1,5 +1,4 @@
-import { getModelForClass, ReturnModelType } from "@typegoose/typegoose";
-import { BeAnObject } from "@typegoose/typegoose/lib/types";
+import { getModelForClass } from "@typegoose/typegoose";
 import mongoose from "mongoose";
 import { Chat } from "./chat";
 

@@ -8,11 +8,11 @@ services:
 
   bot:
     build: .
-    command: node ./lib/server.js
+    command: yarn dev
     ports:
       - "3000:3000"
     volumes:
-      - ./lib:/app/lib
+      - ./src:/app/src
     env_file: .env
     environment:
       MONGODB_URL: mongodb://mongo:27017/shipid

@@ -10,11 +10,15 @@ services:
   bot:
     build: .
     restart: unless-stopped
-    command: yarn start
+    command: node .
     env_file: .env
     environment:
       MONGODB_URL: mongodb://mongo:27017/shipid
-      DEBUG: shipid
-      VIRTUAL_HOST: shipid.holodata.org
-      VIRTUAL_PORT: 3000
-      LETSENCRYPT_HOST: shipid.holodata.org
+      NODE_ENV: production
+    networks:
+      - default
+      - webproxy
+
+networks:
+  webproxy:
+    external: true

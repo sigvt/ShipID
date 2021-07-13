@@ -1,7 +1,7 @@
-import { PREFIX } from "../../../constants";
-import { findOrCreateGuild } from "../../../db";
 import { HandlerOptions } from "../interfaces";
 import { checkModPermission } from "../util";
+import { PREFIX } from "/@/constants";
+import { findOrCreateGuild } from "/@/db";
 
 export const pair = {
   // !sid pair <channelId> <role name>

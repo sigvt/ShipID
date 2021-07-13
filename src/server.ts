@@ -6,6 +6,7 @@ import {
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
   HOST,
+  isDev,
   MONGODB_URL,
   PORT,
   PREFIX,
@@ -33,6 +34,6 @@ app.use(youtubeHandler);
 const server = http.createServer(app);
 
 server.listen(PORT, () => {
-  console.log("http://localhost:" + PORT);
+  console.log(`Listening ${PREFIX} at ${HOST} (${isDev ? "dev" : "prod"})`);
   bot.login(DISCORD_TOKEN);
 });

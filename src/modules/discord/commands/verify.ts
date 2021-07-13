@@ -1,8 +1,8 @@
-import { getUserByDiscordId } from "../../../db";
 import { HandlerOptions } from "../interfaces";
 import { applyRolesPhase } from "../phases/applyRolesPhase";
 import { onboardingPhase } from "../phases/onboardingPhase";
 import { verificationPhase } from "../phases/verificationPhase";
+import { getUserByDiscordId } from "/@/db";
 
 export const verify = {
   // !sid verify

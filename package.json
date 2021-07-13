@@ -6,11 +6,15 @@
   "scripts": {
     "build": "tsc",
     "clean": "shx rm -rf lib",
-    "dev": "tsc -w",
+    "dev": "run-p dev:*",
+    "dev:server": "nodemon -w lib ./lib/server.js",
+    "dev:tsc": "tsc -w",
+    "devcontainer": "docker-compose -f docker-compose.development.yml up",
     "prepare": "husky install",
+    "start": "node ./lib/server.js",
     "test": "jest"
   },
-  "main": "lib/server.js",
+  "main": "./lib/server.js",
   "files": [
     "lib"
   ],
