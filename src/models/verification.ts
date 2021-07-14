@@ -1,25 +1,29 @@
-import mongoose from "mongoose";
+import { Membership } from "masterchat";
+import mongoose, { Schema } from "mongoose";
 import { User } from "./user";
+
+export interface Status {
+  isMember: boolean;
+  status?: string;
+  since?: string;
+}
 
 export interface Verification extends mongoose.Document {
   user: User;
   originChannelId: string;
-  status: {
-    isMember: boolean;
-    duration: string;
-  };
+  status: Status;
   updatedAt?: Date;
+  createdAt?: Date;
 }
 
-const schema = new mongoose.Schema({
-  user: { type: "ObjectId", ref: "User", required: true },
-  originChannelId: { type: String, required: true },
-  status: {
-    isMember: { type: Boolean, required: true },
-    duration: { type: String, required: true },
+const schema = new mongoose.Schema(
+  {
+    user: { type: "ObjectId", ref: "User", required: true },
+    originChannelId: { type: String, required: true },
+    status: Schema.Types.Mixed,
   },
-  updatedAt: { type: Date, default: Date.now, required: true },
-});
+  { timestamps: true }
+);
 
 schema.index({ user: 1, originChannelId: 1 }, { unique: true });
 

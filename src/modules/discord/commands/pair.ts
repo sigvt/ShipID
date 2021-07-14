@@ -1,7 +1,8 @@
-import { HandlerOptions } from "../interfaces";
-import { checkModPermission } from "../util";
 import { PREFIX } from "../../../constants";
 import { findOrCreateGuild } from "../../../db";
+import { log } from "../../../util";
+import { HandlerOptions } from "../interfaces";
+import { checkModPermission } from "../util";
 
 export const pair = {
   // !sid pair <channelId> <role name>
@@ -14,7 +15,7 @@ export const pair = {
 
     const guild = message.guild;
     if (!guild) {
-      console.log("!guild");
+      log("!guild");
       return;
     }
 
@@ -31,7 +32,7 @@ export const pair = {
 
     const role = guild.roles.cache.find((r) => r.name === roleName);
     if (!role) {
-      console.log("!role");
+      log("!role");
       message.reply(`couldn't find \`${roleName}\` role`);
       return;
     }
@@ -47,7 +48,7 @@ export const pair = {
     }
 
     const data = await guildData.save();
-    console.log(data);
+    log(data);
 
     message.reply([
       `success!`,

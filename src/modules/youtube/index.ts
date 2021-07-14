@@ -2,8 +2,9 @@ import { Request, Response, Router } from "express";
 import { Auth, google, youtube_v3 } from "googleapis";
 import jwt from "jsonwebtoken";
 import { JwtToken } from "../../auth";
-import { JWT_SECRET } from "../../constants";
-import UserModel from "../../models/user";
+import { JWT_SECRET, PREFIX } from "../../constants";
+import { createOrUpdateUser } from "../../db";
+import { log } from "../../util";
 
 export function createYouTubeHandler({
   clientId,
@@ -43,8 +44,9 @@ export function createYouTubeHandler({
     if (typeof code !== "string") {
       return res.status(403).json({ error: "no valid code found" });
     }
+
     const state = req.query.state;
-    console.log(state);
+    log(state);
     if (typeof state !== "string") {
       return res.status(403).json({ error: "no valid state found" });
     }
@@ -87,13 +89,42 @@ export function createYouTubeHandler({
 
       const youtubeChannelId = ids[0];
 
-      const user = await UserModel.create({
-        discordId,
+      const user = await createOrUpdateUser(discordId, {
         youtubeChannelId,
       });
-      console.log(user);
 
-      res.json({ error: null, message: "success. try verify command again." });
+      log(user);
+
+      res.contentType("html");
+      res.end(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShipID</title>
+  <style>
+    html, body {
+      height: 100%;
+      font-family: sans-serif;
+      flex-direction: column;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 50pt;
+    }
+
+  </style>
+</head>
+<body>
+<h1>🚢 ShipID</h1>
+<p>Your YouTube account has successfully been confirmed. Return to Discord app and type \`${PREFIX} verify\` again on the server where you want member-specific roles.</p>
+</body>
+</html>`);
     } catch (err) {
       if (err.code === "400") {
         // invalid grant

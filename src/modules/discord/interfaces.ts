@@ -1,4 +1,5 @@
 import Discord from "discord.js";
+import { Status } from "../../models/verification";
 import { Honeybee } from "../../modules/honeybee";
 
 export interface HandlerOptions {
@@ -19,5 +20,5 @@ export interface Command {
 
 export interface RoleChangeset {
   roleId: string;
-  eligible: boolean;
+  status: Status;
 }

@@ -12,6 +12,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
+      - ./lib:/app/lib
       - ./src:/app/src
     env_file: .env
     environment:

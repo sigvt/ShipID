@@ -25,7 +25,7 @@ export async function applyRolesPhase(
     }
 
     try {
-      if (rcs.eligible) {
+      if (rcs.isMember) {
         await member.roles.add(role);
       } else {
         await member.roles.remove(role);
