@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from "discord.js";
+import { Message, MessageEmbed, User } from "discord.js";
 import { PREFIX } from "../../../constants";
 import { getUserByDiscordId } from "../../../db";
 import { log } from "../../../util";
@@ -6,18 +6,30 @@ import { HandlerOptions, RoleChangeset } from "../interfaces";
 import { applyRolesPhase } from "../phases/applyRolesPhase";
 import { onboardingPhase } from "../phases/onboardingPhase";
 import { verificationPhase } from "../phases/verificationPhase";
+import { checkModPermission } from "../util";
 
 export const verify = {
   command: "verify",
   handler: async ({ message, hb }: HandlerOptions) => {
     log("verify", message.author.username);
 
-    const maybeUser = await getUserByDiscordId(message.author.id);
+    let user = message.author;
+    const mentioned = message.mentions.users.first();
+    if (mentioned) {
+      if ((await checkModPermission(message)) && !mentioned.bot) {
+        user = mentioned;
+      } else {
+        await message.reply("You are not allowed for this usage");
+        return;
+      }
+    }
+
+    const maybeUser = await getUserByDiscordId(user.id);
     log("maybeUser", maybeUser?.discordId);
 
     if (!maybeUser) {
       // new user
-      return onboardingPhase(message);
+      return onboardingPhase(user);
     }
 
     const isDM = message.guild == null;
@@ -40,15 +52,19 @@ export const verify = {
     await applyRolesPhase(message, roleChangesets);
 
     // report
-    await report(message, roleChangesets);
+    await report(message, user, roleChangesets);
   },
 };
 
-async function report(message: Message, roleChangesets: RoleChangeset[]) {
+async function report(
+  message: Message,
+  user: User,
+  roleChangesets: RoleChangeset[]
+) {
   const embed = new MessageEmbed()
     .setColor("#2BA640")
     .setTitle("Membership Verification Result")
-    .setDescription(["Here is the verification result for", message.author])
+    .setDescription(["Here is the verification result for", user])
     .setTimestamp(new Date());
 
   for (const cs of roleChangesets) {
