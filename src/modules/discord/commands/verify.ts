@@ -56,7 +56,9 @@ async function report(message: Message, roleChangesets: RoleChangeset[]) {
     embed.addField(
       role.name,
       cs.status.isMember
-        ? `${cs.status.status} (${cs.status.since})`
+        ? `✅ ${cs.status.status}${
+            cs.status.since ? ` (${cs.status.since})` : ""
+          }`
         : "Non-member"
     );
   }

@@ -18,6 +18,14 @@ git pull
 docker-compose up --build
 ```
 
+```js
+db.createUser({
+  user: "shipid",
+  pwd: passwordPrompt(), // or cleartext password
+  roles: [{ role: "read", db: "honeybee" }],
+});
+```
+
 ## References
 
 - [discord.js](https://discord.js.org/#/docs/main/stable/general/welcome)
