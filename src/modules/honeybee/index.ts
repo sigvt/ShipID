@@ -14,12 +14,24 @@ export class Honeybee {
     return this.Chat.db.close();
   }
 
-  async getMembershipStatus(authorChannelId: string, originChannelId: string) {
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+  async getMembershipStatus({
+    authorChannelId,
+    originChannelId,
+    since,
+  }: {
+    authorChannelId: string;
+    originChannelId: string;
+    since?: Date;
+  }) {
+    if (!since) {
+      const now = new Date();
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+      since = firstDay;
+    }
+
     const chats = await this.Chat.find(
       {
-        timestamp: { $gte: firstDay },
+        timestamp: { $gte: since },
         authorChannelId,
         originChannelId,
       },

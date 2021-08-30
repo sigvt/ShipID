@@ -1,13 +1,12 @@
-import Discord from "discord.js";
+import Discord, { CommandInteraction } from "discord.js";
 
-export async function checkModPermission(message: Discord.Message) {
-  if (message.channel.type !== "text") {
+export async function checkModPermission(intr: CommandInteraction) {
+  if (!(intr.channel && intr.channel.type === "GUILD_TEXT")) {
     return false;
   }
 
   const hasPermission =
-    message.channel.permissionsFor(message.author)?.has("MANAGE_CHANNELS") ??
-    false;
+    intr.channel.permissionsFor(intr.user)?.has("MANAGE_CHANNELS") ?? false;
 
   return hasPermission;
 }

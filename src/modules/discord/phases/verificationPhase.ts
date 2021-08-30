@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { CommandInteraction, Message } from "discord.js";
 import {
   findVerification,
   getRoleMapsForGuild,
@@ -10,12 +10,16 @@ import { Honeybee } from "../../../modules/honeybee";
 import { log } from "../../../util";
 import { RoleChangeset } from "../interfaces";
 
+import { DateTime } from "luxon";
+import { HB_MONGO_URI } from "../../../constants";
+
+const hb = new Honeybee(HB_MONGO_URI);
+
 export async function verificationPhase(
-  message: Message,
-  user: User,
-  hb: Honeybee
+  intr: CommandInteraction,
+  user: User
 ): Promise<RoleChangeset[] | undefined> {
-  const guildId = message.guild?.id;
+  const guildId = intr.guild?.id;
   if (!guildId) {
     log("!guildId");
     return;
@@ -24,9 +28,13 @@ export async function verificationPhase(
   const roleMaps = await getRoleMapsForGuild(guildId);
   if (!roleMaps) {
     log("!roleMaps");
-    message.reply("This server is not configured yet. Ask admin first!");
+    intr.reply({
+      content: "This server is not configured yet. Ask admin first!",
+      ephemeral: true,
+    });
     return;
   }
+
   log(
     "roleMaps",
     roleMaps.map((r) => r.roleId)
@@ -39,6 +47,7 @@ export async function verificationPhase(
       hb,
       user,
       originChannelId: rm.originChannelId,
+      since: DateTime.now().minus({ days: 30 }).toJSDate(),
     });
 
     changesets.push({
@@ -49,14 +58,19 @@ export async function verificationPhase(
   return changesets;
 }
 
+/**
+ * Fetch and cache membership status
+ */
 async function fetchMembershipStatus({
   hb,
   user,
   originChannelId,
+  since,
 }: {
   hb: Honeybee;
   user: User;
   originChannelId: string;
+  since?: Date;
 }) {
   const existingVerification = await findVerification({
     user,
@@ -72,10 +86,11 @@ async function fetchMembershipStatus({
     return existingVerification.status;
   }
 
-  const ytStatus = await hb.getMembershipStatus(
-    user.youtubeChannelId,
-    originChannelId
-  );
+  const ytStatus = await hb.getMembershipStatus({
+    authorChannelId: user.youtubeChannelId,
+    originChannelId,
+    since,
+  });
 
   log("yt status", ytStatus);
 
@@ -86,11 +101,13 @@ async function fetchMembershipStatus({
     status: ytStatus?.status,
     since: ytStatus?.since,
   };
+
   const cache = {
     user,
     originChannelId,
     status,
   };
+
   if (existingVerification) {
     await updateVerification(cache);
   } else {

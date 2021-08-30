@@ -1,17 +1,19 @@
-import { Message } from "discord.js";
+import { CommandInteraction, Message } from "discord.js";
 import { RoleChangeset } from "../interfaces";
 
 export async function applyRolesPhase(
-  message: Message,
+  intr: CommandInteraction,
   roleChangesets: RoleChangeset[]
 ) {
-  const guild = message.guild;
+  const guild = intr.guild;
   if (!guild) {
     console.log("!guild");
     return;
   }
 
-  const member = message.member;
+  const member = intr.guild?.members.cache.find(
+    (m) => m.user.tag === intr.user.tag
+  );
   if (!member) {
     console.log("!member");
     return;
@@ -26,9 +28,9 @@ export async function applyRolesPhase(
 
     try {
       if (rcs.status.isMember) {
-        await member.roles.add(role);
+        console.log(await member.roles.add(role));
       } else {
-        await member.roles.remove(role);
+        console.log(await member.roles.remove(role));
       }
     } catch (err) {
       console.log("Error while modifying role: " + err.message);

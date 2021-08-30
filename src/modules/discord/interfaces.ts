@@ -1,4 +1,7 @@
-import Discord from "discord.js";
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { SharedSlashCommandOptions } from "@discordjs/builders/dist/interactions/slashCommands/mixins/CommandOptions";
+import { SharedNameAndDescription } from "@discordjs/builders/dist/interactions/slashCommands/mixins/NameAndDescription";
+import Discord, { CommandInteraction } from "discord.js";
 import { Status } from "../../models/verification";
 import { Honeybee } from "../../modules/honeybee";
 
@@ -14,8 +17,10 @@ export interface Handler {
 }
 
 export interface Command {
-  command: string;
-  handler: Handler;
+  data:
+    | SlashCommandBuilder
+    | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
+  execute: (interaction: CommandInteraction, args?: string[]) => Promise<any>;
 }
 
 export interface RoleChangeset {

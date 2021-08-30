@@ -1,39 +1,32 @@
-import Discord from "discord.js";
-import { commands } from "./commands";
+import { Client, Intents } from "discord.js";
 import { HB_MONGO_URI } from "../../constants";
 import { Honeybee } from "../../modules/honeybee";
 import { log } from "../../util";
+import { commands } from "./commands";
 
-export function createBot({ prefix }: { prefix: string }) {
+export function createBot() {
   const hb = new Honeybee(HB_MONGO_URI);
-  const prefixMatcher = new RegExp(`^${prefix}[\\s$]`);
+  const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
-  async function commandParser(message: Discord.Message) {
+  client.on("interactionCreate", async (interaction) => {
+    if (!interaction.isCommand()) return;
+
+    const command = commands.find(
+      (command) => command.data.name === interaction.commandName
+    );
+
+    if (!command) return;
+
     try {
-      if (message.author.bot) return;
-      if (!prefixMatcher.test(message.content)) return;
-      const payload = message.content.slice(prefix.length + 1).split(" ");
-      const commandName = payload.shift();
-      const args = payload;
-
-      if (!commandName) return;
-      log(`command: ${commandName}`, payload);
-
-      const command = commands.find(
-        (command) => command.command === commandName
-      );
-      if (!command) {
-        return message.reply(`unrecognized command: ${commandName}`);
-      }
-
-      await command.handler({ message, command: commandName, args, hb });
-    } catch (err) {
-      console.log(err);
-      await message.reply(err.message);
+      await command.execute(interaction);
+    } catch (error) {
+      console.error(error);
+      await interaction.reply({
+        content: "There was an error while executing this command!",
+        ephemeral: true,
+      });
     }
-  }
-
-  const client = new Discord.Client();
+  });
 
   client.once("ready", () => {
     console.log("ready");
@@ -48,8 +41,6 @@ export function createBot({ prefix }: { prefix: string }) {
     log("channelDelete");
     // const invalidSubs = await removeSubscriptionForChannel(channel.id);
   });
-
-  client.on("message", commandParser);
 
   return client;
 }

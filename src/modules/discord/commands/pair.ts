@@ -1,59 +1,61 @@
-import { PREFIX } from "../../../constants";
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { CommandInteraction } from "discord.js";
 import { findOrCreateGuild } from "../../../db";
 import { log } from "../../../util";
-import { HandlerOptions } from "../interfaces";
 import { checkModPermission } from "../util";
 
-export const pair = {
-  // !sid pair <channelId> <role name>
-  command: "pair",
-  handler: async ({ message, args }: HandlerOptions) => {
-    if (!(await checkModPermission(message))) {
-      console.log("!checkModPermission", message.author.username);
+export default {
+  data: new SlashCommandBuilder()
+    .setName("pair")
+    .setDescription("Pair role with YouTube channel")
+    .addStringOption((option) =>
+      option
+        .setName("channel")
+        .setDescription("YouTube Channel ID")
+        .setRequired(true)
+    )
+    .addRoleOption((option) =>
+      option
+        .setName("role")
+        .setDescription("The role to tired with")
+        .setRequired(true)
+    ),
+  async execute(interaction: CommandInteraction) {
+    if (!(await checkModPermission(interaction))) {
+      console.log("!checkModPermission", interaction.user.username);
       return;
     }
 
-    const guild = message.guild;
+    const guild = interaction.guild;
     if (!guild) {
       log("!guild");
       return;
     }
 
-    if (args.length < 2) {
-      message.reply(`usage: ${PREFIX} pair \`<channelId>\` \`<role name>\``);
-      return;
-    }
+    const channel = interaction.options.getString("channel")!;
+    const role = interaction.options.getRole("role")!;
+
+    console.log("channel:", channel, "roleName:", role);
 
     const guildData = await findOrCreateGuild(guild.id);
 
-    const originChannelId = args.shift()!;
-    const roleName = args.join(" ");
-    console.log("channel:", originChannelId, "roleName:", roleName);
-
-    const role = guild.roles.cache.find((r) => r.name === roleName);
-    if (!role) {
-      log("!role");
-      message.reply(`couldn't find \`${roleName}\` role`);
-      return;
-    }
-
     const rm = guildData.roleMaps.find((rm) => rm.roleId === role.id);
     if (rm) {
-      rm.originChannelId = originChannelId;
+      rm.originChannelId = channel;
     } else {
       guildData.roleMaps.push({
         roleId: role.id,
-        originChannelId,
+        originChannelId: channel,
       });
     }
 
     const data = await guildData.save();
     log(data);
 
-    message.reply([
-      `success!`,
-      `Role: \`${roleName}\``,
-      `Target channel: https://www.youtube.com/channel/${originChannelId}`,
-    ]);
+    interaction.reply({
+      content: `success!
+Role: \`${role.name}\`
+Target channel: https://www.youtube.com/channel/${channel}`,
+    });
   },
 };

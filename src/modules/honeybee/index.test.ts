@@ -19,10 +19,10 @@ afterAll(async () => {
 
 it("can fetch membership", async () => {
   console.time("getChat");
-  const membership = await hb.getMembershipStatus(
-    HB_TEST_CHANNEL_ID!,
-    HB_TEST_ORIGIN_CHANNEL_ID!
-  );
+  const membership = await hb.getMembershipStatus({
+    authorChannelId: HB_TEST_CHANNEL_ID!,
+    originChannelId: HB_TEST_ORIGIN_CHANNEL_ID!,
+  });
   console.timeEnd("getChat");
 
   expect(membership).toEqual(
@@ -34,10 +34,10 @@ it("can fetch membership", async () => {
 
 it("should returns undefined", async () => {
   console.time("getChat");
-  const membership = await hb.getMembershipStatus(
-    HB_TEST_CHANNEL_ID_NE!,
-    HB_TEST_ORIGIN_CHANNEL_ID!
-  );
+  const membership = await hb.getMembershipStatus({
+    authorChannelId: HB_TEST_CHANNEL_ID_NE!,
+    originChannelId: HB_TEST_ORIGIN_CHANNEL_ID!,
+  });
   console.timeEnd("getChat");
 
   expect(membership).toBeUndefined();

@@ -19,7 +19,7 @@ mongoose.connect(MONGODB_URL, {
   useUnifiedTopology: true,
 });
 
-const bot = createBot({ prefix: PREFIX });
+const bot = createBot();
 
 const youtubeHandler = createYouTubeHandler({
   clientId: GOOGLE_CLIENT_ID,
