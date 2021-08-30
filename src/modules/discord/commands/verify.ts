@@ -3,16 +3,16 @@ import { CommandInteraction, MessageEmbed, User } from "discord.js";
 import { PREFIX } from "../../../constants";
 import { getUserByDiscordId } from "../../../db";
 import { log } from "../../../util";
-import { RoleChangeset } from "../interfaces";
+import { Command, RoleChangeset } from "../interfaces";
 import { applyRolesPhase } from "../phases/applyRolesPhase";
 import { onboardingPhase } from "../phases/onboardingPhase";
 import { verificationPhase } from "../phases/verificationPhase";
 
-export default {
+const command: Command = {
   data: new SlashCommandBuilder()
     .setName("verify")
     .setDescription("Verify membership status"),
-  async execute(intr: CommandInteraction) {
+  async execute(intr: CommandInteraction, { hb }) {
     log("verify", intr.user.username);
     log(intr.options);
 
@@ -34,7 +34,7 @@ export default {
       return;
     }
 
-    const roleChangesets = await verificationPhase(intr, maybeUser);
+    const roleChangesets = await verificationPhase(intr, maybeUser, hb);
 
     if (!roleChangesets) {
       log("!roleChangesets");
@@ -75,3 +75,5 @@ async function report(
 
   await intr.reply({ embeds: [embed] });
 }
+
+export default command;

@@ -28,9 +28,9 @@ export async function applyRolesPhase(
 
     try {
       if (rcs.status.isMember) {
-        console.log(await member.roles.add(role));
+        await member.roles.add(role);
       } else {
-        console.log(await member.roles.remove(role));
+        await member.roles.remove(role);
       }
     } catch (err: any) {
       console.log("Error while modifying role: " + err.message);

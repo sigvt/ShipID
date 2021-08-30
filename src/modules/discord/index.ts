@@ -3,9 +3,12 @@ import { HB_MONGO_URI } from "../../constants";
 import { Honeybee } from "../../modules/honeybee";
 import { log } from "../../util";
 import { commands } from "./commands";
+import { CommandContext } from "./interfaces";
 
 export function createBot() {
   const hb = new Honeybee(HB_MONGO_URI);
+  const context:CommandContext = { hb };
+
   const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
   client.on("interactionCreate", async (interaction) => {
@@ -18,7 +21,7 @@ export function createBot() {
     if (!command) return;
 
     try {
-      await command.execute(interaction);
+      await command.execute(interaction, context);
     } catch (error) {
       console.error(error);
       await interaction.reply({
@@ -33,12 +36,12 @@ export function createBot() {
   });
 
   client.on("guildDelete", async (guild) => {
-    log("guildDelete");
+    log("guildDelete", guild);
     // const invalidSubs = await removeSubscriptionForGuild(guild.id);
   });
 
   client.on("channelDelete", async (channel) => {
-    log("channelDelete");
+    log("channelDelete", channel);
     // const invalidSubs = await removeSubscriptionForChannel(channel.id);
   });
 

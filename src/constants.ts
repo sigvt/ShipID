@@ -8,7 +8,7 @@ export const DISCORD_TOKEN = process.env.DISCORD_TOKEN!;
 assert(DISCORD_TOKEN, "DISCORD_TOKEN is missing");
 
 export const MONGODB_URL = process.env.MONGODB_URL!;
-assert(MONGODB_URL, "MONGODB_URL is missing");
+// assert(MONGODB_URL, "MONGODB_URL is missing");
 
 export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 assert(GOOGLE_CLIENT_ID, "GOOGLE_CLIENT_ID is missing");

@@ -4,9 +4,11 @@ import { DISCORD_TOKEN } from "../../constants";
 // import { clientId, guildId, token } from "./config.json";
 import { commands } from "./commands";
 
-const clientId = process.env.DISCORD_APP_ID!;
+const clientId = process.env.DISCORD_CLIENT_ID!;
 const guildId = process.env.DISCORD_GUILD_ID!;
 const token = DISCORD_TOKEN;
+
+console.log(commands.map((command) => command.data.toJSON()));
 
 const rest = new REST({ version: "9" }).setToken(token);
 

@@ -11,13 +11,11 @@ import { log } from "../../../util";
 import { RoleChangeset } from "../interfaces";
 
 import { DateTime } from "luxon";
-import { HB_MONGO_URI } from "../../../constants";
-
-const hb = new Honeybee(HB_MONGO_URI);
 
 export async function verificationPhase(
   intr: CommandInteraction,
-  user: User
+  user: User,
+  hb: Honeybee
 ): Promise<RoleChangeset[] | undefined> {
   const guildId = intr.guild?.id;
   if (!guildId) {
