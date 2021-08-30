@@ -125,7 +125,7 @@ export function createYouTubeHandler({
 <p>Your YouTube account has successfully been confirmed. Return to Discord app and type \`${PREFIX} verify\` again on the server where you want member-specific roles.</p>
 </body>
 </html>`);
-    } catch (err) {
+    } catch (err: any) {
       if (err.code === "400") {
         // invalid grant
         return res.redirect("/auth");

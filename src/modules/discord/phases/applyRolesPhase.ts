@@ -32,7 +32,7 @@ export async function applyRolesPhase(
       } else {
         console.log(await member.roles.remove(role));
       }
-    } catch (err) {
+    } catch (err: any) {
       console.log("Error while modifying role: " + err.message);
     }
   }

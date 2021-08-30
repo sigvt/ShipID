@@ -12,8 +12,8 @@ export function onboardingPhase(user: User) {
   };
   const state = jwt.sign(payload, JWT_SECRET);
 
-  user.send([
-    "To verify your membership, proceed to sign-in with your YouTube account.",
-    `${HOST}/auth?state=${state}`,
-  ]);
+  user.send({
+    content: `To verify your membership, proceed to sign-in with your YouTube account.
+${HOST}/auth?state=${state}`,
+  });
 }
