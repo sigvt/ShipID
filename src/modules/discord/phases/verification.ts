@@ -6,13 +6,13 @@ import {
   updateVerification,
 } from "../../../db";
 import { User } from "../../../models/user";
-import { Honeybee } from "../../../modules/honeybee";
+import { Honeybee } from "../../honeybee";
 import { log } from "../../../util";
 import { RoleChangeset } from "../interfaces";
 
 import { DateTime } from "luxon";
 
-export async function verificationPhase(
+export async function getRoleEligibility(
   intr: CommandInteraction,
   user: User,
   hb: Honeybee
@@ -70,34 +70,32 @@ async function fetchMembershipStatus({
   originChannelId: string;
   since?: Date;
 }) {
-  const existingVerification = await findVerification({
+  const verification = await findVerification({
     user,
     originChannelId,
   });
 
   if (
-    existingVerification &&
-    Date.now() - existingVerification.updatedAt!.getTime() < 1000 * 60 * 5
+    verification &&
+    Date.now() - verification.updatedAt!.getTime() < 1000 * 60 * 5
   ) {
     // cache
-    log("cache hit", existingVerification);
-    return existingVerification.status;
+    log("cache hit", verification);
+    return verification.status;
   }
 
-  const ytStatus = await hb.getMembershipStatus({
+  const newStatus = await hb.getMembershipStatus({
     authorChannelId: user.youtubeChannelId,
     originChannelId,
     since,
   });
 
-  log("yt status", ytStatus);
-
-  const isMember = ytStatus !== undefined;
+  log("new yt status", newStatus);
 
   const status = {
-    isMember,
-    status: ytStatus?.status,
-    since: ytStatus?.since,
+    isMember: newStatus !== undefined,
+    status: newStatus?.status,
+    since: newStatus?.since,
   };
 
   const cache = {
@@ -106,7 +104,7 @@ async function fetchMembershipStatus({
     status,
   };
 
-  if (existingVerification) {
+  if (verification) {
     await updateVerification(cache);
   } else {
     await saveVerification(cache);

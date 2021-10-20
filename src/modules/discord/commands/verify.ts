@@ -1,52 +1,37 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed, User } from "discord.js";
-import { PREFIX } from "../../../constants";
 import { getUserByDiscordId } from "../../../db";
 import { log } from "../../../util";
 import { Command, RoleChangeset } from "../interfaces";
-import { applyRolesPhase } from "../phases/applyRolesPhase";
-import { onboardingPhase } from "../phases/onboardingPhase";
-import { verificationPhase } from "../phases/verificationPhase";
+import { applyRoles } from "../phases/applyRoles";
+import { onboardingPhase } from "../phases/onboarding";
+import { getRoleEligibility } from "../phases/verification";
 
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName("verify")
     .setDescription("Verify membership status"),
+
   async execute(intr: CommandInteraction, { hb }) {
     log("verify", intr.user.username);
-    log(intr.options);
 
     const user = intr.user;
-    const isDM = intr.guild == null;
-
     const maybeUser = await getUserByDiscordId(user.id);
-    log("maybeUser", maybeUser?.discordId);
 
     if (!maybeUser) {
       // new user
       return onboardingPhase(user);
     }
 
-    if (isDM) {
-      intr.reply({
-        content: `User YouTube account has been successfully verified. Type \`${PREFIX} verify\` again on the server where you want member-specific roles.`,
-      });
-      return;
-    }
-
-    const roleChangesets = await verificationPhase(intr, maybeUser, hb);
-
-    if (!roleChangesets) {
-      log("!roleChangesets");
-      return;
-    }
+    const rolesToChange = await getRoleEligibility(intr, maybeUser, hb);
+    if (!rolesToChange) return;
 
     // apply roles
-    log("roleChangesets", roleChangesets);
-    await applyRolesPhase(intr, roleChangesets);
+    log("roleChangesets", rolesToChange);
+    await applyRoles(intr, rolesToChange);
 
     // report
-    await report(intr, user, roleChangesets);
+    await report(intr, user, rolesToChange);
   },
 };
 

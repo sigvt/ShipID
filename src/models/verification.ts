@@ -1,4 +1,3 @@
-import { Membership } from "masterchat";
 import mongoose, { Schema } from "mongoose";
 import { User } from "./user";
 

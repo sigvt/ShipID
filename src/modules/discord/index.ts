@@ -7,7 +7,8 @@ import { CommandContext } from "./interfaces";
 
 export function createBot() {
   const hb = new Honeybee(HB_MONGO_URI);
-  const context:CommandContext = { hb };
+
+  const context: CommandContext = { hb };
 
   const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 

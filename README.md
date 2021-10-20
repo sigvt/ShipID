@@ -2,8 +2,9 @@
 
 # ShipID
 
-A Discord bot provides automated YouTube membership verification and role assignment services on your server.
+> A fully-automated YouTube membership verification & role-assignment bot for Discord
 
-> Under development stage. Join our Discord server for the further info.
+> Under development stage. Join our Discord server for participating in dev process.
 
-**ShipID** is inspired by [Gentei](https://github.com/member-gentei/member-gentei) project. As a way to verify a user's membership, we are relying on the vast amount of live chat collected by our [Honeybee](https://github.com/holodata/honeybee) cluster. Therefore, minimal permissions are sufficient to check a user's YouTube account (we only ask for `youtube.read` scope).
+**ShipID** is inspired by [Gentei](https://github.com/member-gentei/member-gentei) project.
+As a way to verify a user's membership, we are relying on the vast amount of live chat collected by our [Honeybee](https://github.com/holodata/honeybee), and video comments as a backup strategy.

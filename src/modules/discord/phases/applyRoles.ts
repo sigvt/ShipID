@@ -1,30 +1,21 @@
 import { CommandInteraction, Message } from "discord.js";
 import { RoleChangeset } from "../interfaces";
 
-export async function applyRolesPhase(
+export async function applyRoles(
   intr: CommandInteraction,
   roleChangesets: RoleChangeset[]
 ) {
   const guild = intr.guild;
-  if (!guild) {
-    console.log("!guild");
-    return;
-  }
+  if (!guild) return console.log("!guild");
 
   const member = intr.guild?.members.cache.find(
     (m) => m.user.tag === intr.user.tag
   );
-  if (!member) {
-    console.log("!member");
-    return;
-  }
+  if (!member) return console.log("!member");
 
   for (const rcs of roleChangesets) {
     const role = await guild.roles.fetch(rcs.roleId);
-    if (!role) {
-      console.log("!role", rcs.roleId);
-      return;
-    }
+    if (!role) return console.log("!role", rcs.roleId);
 
     try {
       if (rcs.status.isMember) {

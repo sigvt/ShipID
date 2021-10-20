@@ -11,10 +11,7 @@ export interface Command {
   data:
     | SlashCommandBuilder
     | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
-  execute: (
-    interaction: CommandInteraction,
-    context: CommandContext
-  ) => Promise<any>;
+  execute: (interaction: CommandInteraction, context: CommandContext) => any;
 }
 
 export interface RoleChangeset {

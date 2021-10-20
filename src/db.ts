@@ -1,7 +1,6 @@
-import UserModel, { User } from "./models/user";
 import GuildModel from "./models/guild";
+import UserModel, { User } from "./models/user";
 import VerificationModel, { Status } from "./models/verification";
-import { Membership } from "masterchat";
 
 export async function getUserByDiscordId(discordId: string) {
   return await UserModel.findOne({ discordId });
