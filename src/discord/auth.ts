@@ -2,10 +2,10 @@ import { APIConnection } from "discord-api-types";
 import { Request, Response, Router } from "express";
 import jwt from "jsonwebtoken";
 import fetch from "node-fetch";
-import { JWT_SECRET } from "../../constants";
-import { createOrUpdateUser } from "../../db";
-import { log } from "../../util";
-import { JwtToken } from "../auth";
+import { JWT_SECRET } from "../constants";
+import { createOrUpdateUser } from "../db";
+import { log } from "../util";
+import { JwtToken } from "./interfaces";
 
 const DISCORD_AUTHORIZE_URL = "https://discord.com/api/oauth2/authorize";
 const DISCORD_TOKEN_URL = "https://discord.com/api/oauth2/token";
@@ -51,7 +51,7 @@ async function getConnections(token: string): Promise<APIConnection[]> {
   return await res.json();
 }
 
-export function createDiscordOAuthHandler({
+export function createAuthHandler({
   clientId,
   clientSecret,
   redirectUri,

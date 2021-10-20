@@ -1,8 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
-import { findOrCreateGuild } from "../../../db";
-import { log } from "../../../util";
-import { assertValidModerator } from "../util";
+import { findOrCreateGuild } from "../../db";
+import { log } from "../../util";
 
 export default {
   data: new SlashCommandBuilder()
@@ -54,3 +53,16 @@ Channel: https://www.youtube.com/channel/${channel}`,
     });
   },
 };
+
+async function assertValidModerator(intr: CommandInteraction) {
+  if (!(intr.channel && intr.channel.type === "GUILD_TEXT")) {
+    throw new Error("Invalid channel");
+  }
+
+  const hasPermission =
+    intr.channel.permissionsFor(intr.user)?.has("MANAGE_CHANNELS") ?? false;
+
+  if (!hasPermission) {
+    throw new Error("You are not allowed to run this command");
+  }
+}

@@ -10,8 +10,8 @@ import {
   MONGODB_URL,
   PORT,
 } from "./constants";
-import { createBot } from "./modules/discord";
-import { createDiscordOAuthHandler } from "./modules/discord/auth";
+import { createBot } from "./discord/bot";
+import { createAuthHandler } from "./discord/auth";
 
 // setup db
 mongoose.connect(MONGODB_URL, {
@@ -23,7 +23,7 @@ mongoose.connect(MONGODB_URL, {
 // setup discord bot
 const bot = createBot();
 
-const discordOAuthHandler = createDiscordOAuthHandler({
+const discordOAuthHandler = createAuthHandler({
   clientId: DISCORD_CLIENT_ID,
   clientSecret: DISCORD_CLIENT_SECRET,
   redirectUri: `${HOST}/discord/callback`,

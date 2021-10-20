@@ -4,10 +4,10 @@ import {
   getRoleMapsForGuild,
   saveVerification,
   updateVerification,
-} from "../../../db";
-import { User } from "../../../models/user";
+} from "../../db";
+import { User } from "../../models/user";
 import { Honeybee } from "../../honeybee";
-import { log } from "../../../util";
+import { log } from "../../util";
 import { RoleChangeset } from "../interfaces";
 
 import { DateTime } from "luxon";

@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction, MessageEmbed, User } from "discord.js";
-import { getUserByDiscordId } from "../../../db";
-import { log } from "../../../util";
+import { getUserByDiscordId } from "../../db";
+import { log } from "../../util";
 import { Command, RoleChangeset } from "../interfaces";
 import { applyRoles } from "../phases/applyRoles";
 import { onboardingPhase } from "../phases/onboarding";

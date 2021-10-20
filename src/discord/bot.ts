@@ -1,7 +1,7 @@
 import { Client, Intents } from "discord.js";
-import { HB_MONGO_URI } from "../../constants";
-import { Honeybee } from "../../modules/honeybee";
-import { log } from "../../util";
+import { HB_MONGO_URI } from "../constants";
+import { Honeybee } from "../honeybee";
+import { log } from "../util";
 import { commands } from "./commands";
 import { CommandContext } from "./interfaces";
 

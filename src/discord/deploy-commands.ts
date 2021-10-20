@@ -1,6 +1,6 @@
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
-import { DISCORD_TOKEN } from "../../constants";
+import { DISCORD_TOKEN } from "../constants";
 import { commands } from "./commands";
 
 const clientId = process.env.DISCORD_CLIENT_ID!;

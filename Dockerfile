@@ -7,4 +7,4 @@ RUN yarn install --frozen-lockfile
 COPY . .
 RUN yarn build
 
-CMD ["node", "./lib/server.js"]
+CMD ["node", "./lib/index.js"]
