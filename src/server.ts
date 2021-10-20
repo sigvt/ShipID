@@ -2,11 +2,9 @@ import { mongoose } from "@typegoose/typegoose";
 import express from "express";
 import http from "http";
 import {
-  DISCORD_TOKEN,
   DISCORD_CLIENT_ID,
   DISCORD_CLIENT_SECRET,
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
+  DISCORD_TOKEN,
   HOST,
   isDev,
   MONGODB_URL,
