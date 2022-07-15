@@ -18,7 +18,7 @@ export async function applyRoles(
     if (!role) return console.log("!role", rcs.roleId);
 
     try {
-      if (rcs.status.isMember) {
+      if (rcs.valid) {
         await member.roles.add(role);
       } else {
         await member.roles.remove(role);

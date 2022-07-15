@@ -60,7 +60,24 @@ export function createAuthHandler({
   clientSecret: string;
   redirectUri: string;
 }) {
+  async function getToken(code: string) {
+    const body = {
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: "authorization_code",
+      code: code,
+      redirect_uri: redirectUri,
+    };
+    const res = await fetch(DISCORD_TOKEN_URL, {
+      method: "POST",
+      body: new URLSearchParams(body),
+    });
+    return await res.json();
+  }
+
   function authorize(req: Request, res: Response) {
+    res.setHeader("Cache-Control", "no-store");
+
     const state = req.query.state;
     if (typeof state !== "string") {
       return renderHTML(res.status(403), "no valid state found");
@@ -78,22 +95,9 @@ export function createAuthHandler({
     res.redirect(authorizeUrl);
   }
 
-  async function getToken(code: string) {
-    const body = {
-      client_id: clientId,
-      client_secret: clientSecret,
-      grant_type: "authorization_code",
-      code: code,
-      redirect_uri: redirectUri,
-    };
-    const res = await fetch(DISCORD_TOKEN_URL, {
-      method: "POST",
-      body: new URLSearchParams(body),
-    });
-    return await res.json();
-  }
-
   async function callback(req: Request, res: Response) {
+    res.setHeader("Cache-Control", "no-store");
+
     const code = req.query.code;
     if (typeof code !== "string") {
       return renderHTML(res.status(403), "Invalid request");
@@ -142,9 +146,7 @@ export function createAuthHandler({
       const youtubeChannelId = youtubeConnection.id;
 
       // create user
-      const user = await createOrUpdateUser(discordId, {
-        youtubeChannelId,
-      });
+      const user = await createOrUpdateUser({ discordId, youtubeChannelId });
       log(channelName, user);
 
       renderHTML(

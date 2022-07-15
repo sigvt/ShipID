@@ -1,16 +1,15 @@
-import { CommandInteraction, Message } from "discord.js";
+import { CommandInteraction } from "discord.js";
+import { DateTime } from "luxon";
+import { LIFETIME } from "../../constants";
 import {
-  findVerification,
-  getRoleMapsForGuild,
-  saveVerification,
-  updateVerification,
+  createOrUpdateCertificate,
+  findCertificate,
+  getPairsForGuild,
 } from "../../db";
-import { User } from "../../models/user";
 import { Honeybee } from "../../honeybee";
+import { User } from "../../models/user";
 import { log } from "../../util";
 import { RoleChangeset } from "../interfaces";
-
-import { DateTime } from "luxon";
 
 export async function getRoleEligibility(
   intr: CommandInteraction,
@@ -23,9 +22,9 @@ export async function getRoleEligibility(
     return;
   }
 
-  const roleMaps = await getRoleMapsForGuild(guildId);
-  if (!roleMaps) {
-    log("!roleMaps");
+  const pairs = await getPairsForGuild(guildId);
+  if (!pairs) {
+    log("!pairs");
     intr.reply({
       content: "This server is not configured yet. Ask admin first!",
       ephemeral: true,
@@ -34,14 +33,14 @@ export async function getRoleEligibility(
   }
 
   log(
-    "roleMaps",
-    roleMaps.map((r) => r.roleId)
+    "pairs",
+    pairs.map((r) => r.roleId)
   );
 
   let changesets: RoleChangeset[] = [];
-  for (const rm of roleMaps) {
+  for (const rm of pairs) {
     // fetch status from honeybee
-    const status = await fetchMembershipStatus({
+    const status = await fetchMembership({
       hb,
       user,
       originChannelId: rm.originChannelId,
@@ -50,7 +49,8 @@ export async function getRoleEligibility(
 
     changesets.push({
       roleId: rm.roleId,
-      status,
+      valid: status.valid,
+      since: status.since,
     });
   }
   return changesets;
@@ -59,7 +59,7 @@ export async function getRoleEligibility(
 /**
  * Fetch and cache membership status
  */
-async function fetchMembershipStatus({
+async function fetchMembership({
   hb,
   user,
   originChannelId,
@@ -70,18 +70,19 @@ async function fetchMembershipStatus({
   originChannelId: string;
   since?: Date;
 }) {
-  const verification = await findVerification({
+  const certificate = await findCertificate({
     user,
     originChannelId,
   });
 
   if (
-    verification &&
-    Date.now() - verification.updatedAt!.getTime() < 1000 * 60 * 5
+    certificate &&
+    Date.now() - certificate.updatedAt!.getTime() <
+      1000 * 60 * 60 * 24 * LIFETIME
   ) {
     // cache
-    log("cache hit", verification);
-    return verification.status;
+    log("cache hit", certificate);
+    return certificate;
   }
 
   const newStatus = await hb.getMembershipStatus({
@@ -92,23 +93,13 @@ async function fetchMembershipStatus({
 
   log("new yt status", newStatus);
 
-  const status = {
-    isMember: newStatus !== undefined,
-    status: newStatus?.status,
-    since: newStatus?.since,
-  };
+  const valid = newStatus !== undefined;
+  const memberSince = newStatus?.since;
 
-  const cache = {
+  return await createOrUpdateCertificate({
     user,
     originChannelId,
-    status,
-  };
-
-  if (verification) {
-    await updateVerification(cache);
-  } else {
-    await saveVerification(cache);
-  }
-
-  return status;
+    valid,
+    since: memberSince,
+  });
 }

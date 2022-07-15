@@ -1,15 +1,18 @@
-import GuildModel from "./models/guild";
+import PairModel, { Pair } from "./models/pair";
 import UserModel, { User } from "./models/user";
-import VerificationModel, { Status } from "./models/verification";
+import CertificateModel, { Certificate } from "./models/certificate";
 
 export async function getUserByDiscordId(discordId: string) {
   return await UserModel.findOne({ discordId });
 }
 
-export async function createOrUpdateUser(
-  discordId: string,
-  { youtubeChannelId }: { youtubeChannelId: string }
-) {
+export async function createOrUpdateUser({
+  discordId,
+  youtubeChannelId,
+}: {
+  discordId: string;
+  youtubeChannelId: string;
+}) {
   const user = await getUserByDiscordId(discordId);
   if (user) {
     user.youtubeChannelId = youtubeChannelId;
@@ -24,64 +27,60 @@ export async function createOrUpdateUser(
   return newUser;
 }
 
-export async function findOrCreateGuild(guildId: string) {
-  const guild = await GuildModel.findOne({ guildId });
-  if (guild) return guild;
-
-  const newGuild = await GuildModel.create({
-    guildId,
-    roleMaps: [],
-    createdAt: new Date(),
-  });
-
-  return newGuild;
+export async function createPair({
+  guildId,
+  roleId,
+  originChannelId,
+}: {
+  guildId: string;
+  roleId: string;
+  originChannelId: string;
+}): Promise<Pair> {
+  const pair = await PairModel.create({ guildId, roleId, originChannelId });
+  return pair;
 }
 
-export async function getRoleMapsForGuild(guildId: string) {
-  const guild = await GuildModel.findOne({ guildId });
-  if (!guild) return undefined;
-
-  const roleMaps = guild.roleMaps;
-  return roleMaps;
+export async function getPairsForGuild(guildId: string): Promise<Pair[]> {
+  const pairs = await PairModel.find({ guildId });
+  return pairs;
 }
 
-export async function findVerification({
+export async function findCertificate({
   user,
   originChannelId,
 }: {
   user: User;
   originChannelId: string;
-}) {
-  return await VerificationModel.findOne({ user, originChannelId });
+}): Promise<Certificate | null> {
+  return await CertificateModel.findOne({ user, originChannelId });
 }
 
-export interface ModifyVerificationOptions {
+export interface ModifyOptions {
   user: User;
   originChannelId: string;
-  status: Status;
+  valid: boolean;
+  since?: string;
 }
 
-export async function updateVerification({
+export async function createOrUpdateCertificate({
   user,
   originChannelId,
-  status,
-}: ModifyVerificationOptions) {
-  return await VerificationModel.updateOne(
-    { user, originChannelId },
-    {
-      status,
-    }
-  );
-}
+  valid,
+  since,
+}: ModifyOptions): Promise<Certificate> {
+  const cert = await findCertificate({ user, originChannelId });
+  if (cert) {
+    cert.valid = valid;
+    cert.since = since;
+    return await cert.save();
+  }
 
-export async function saveVerification({
-  user,
-  originChannelId,
-  status,
-}: ModifyVerificationOptions) {
-  return await VerificationModel.create({
+  const newCert = await CertificateModel.create({
     user,
     originChannelId,
-    status,
+    valid,
+    since,
   });
+
+  return newCert;
 }

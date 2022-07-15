@@ -12,6 +12,7 @@ import {
 } from "./constants";
 import { createBot } from "./discord/bot";
 import { createAuthHandler } from "./discord/auth";
+import { startScheduler } from "./scheduler";
 
 // setup db
 mongoose.connect(MONGODB_URL, {
@@ -33,10 +34,15 @@ const app = express();
 
 app.use(discordOAuthHandler);
 
-// start bot and server
 const server = http.createServer(app);
 
+// start server
 server.listen(PORT, () => {
   console.log(`Listening at ${HOST} (${isDev ? "dev" : "prod"})`);
+
+  // start scheduler
+  startScheduler();
+
+  // start bot
   bot.login(DISCORD_TOKEN);
 });

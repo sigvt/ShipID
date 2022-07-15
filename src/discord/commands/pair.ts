@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
-import { findOrCreateGuild } from "../../db";
+import { createPair } from "../../db";
 import { log } from "../../util";
 
 export default {
@@ -30,21 +30,12 @@ export default {
 
     console.log("channel:", channel, "roleName:", role);
 
-    const guildData = await findOrCreateGuild(guild.id);
-
-    const rm = guildData.roleMaps.find((rm) => rm.roleId === role.id);
-
-    if (rm) {
-      rm.originChannelId = channel;
-    } else {
-      guildData.roleMaps.push({
-        roleId: role.id,
-        originChannelId: channel,
-      });
-    }
-
-    const data = await guildData.save();
-    log(data);
+    const pair = await createPair({
+      guildId: guild.id,
+      roleId: role.id,
+      originChannelId: channel,
+    });
+    log(pair);
 
     intr.reply({
       content: `Success:

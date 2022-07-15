@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CommandInteraction } from "discord.js";
-import { Status } from "../models/verification";
 import { Honeybee } from "../honeybee";
 
 export interface CommandContext {
@@ -16,7 +15,8 @@ export interface Command {
 
 export interface RoleChangeset {
   roleId: string;
-  status: Status;
+  valid: boolean;
+  since?: string;
 }
 
 export interface JwtToken {

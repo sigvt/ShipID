@@ -3,22 +3,20 @@ version: "3.1"
 services:
   mongo:
     image: mongo:4
-    restart: unless-stopped
     volumes:
       - ./data/mongo:/data/db
 
   bot:
     build: .
-    restart: unless-stopped
-    command: node .
+    command: yarn dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./lib:/app/lib
+      - ./src:/app/src
     env_file: .env
     environment:
       MONGODB_URL: mongodb://mongo:27017/shipid
-      NODE_ENV: production
-    networks:
-      - default
-      - webproxy
-
-networks:
-  webproxy:
-    external: true
+      DEBUG: shipid
+    depends_on:
+      - mongo

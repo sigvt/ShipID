@@ -50,11 +50,7 @@ async function report(
     const role = (await intr.guild!.roles.fetch(cs.roleId))!;
     embed.addField(
       role.name,
-      cs.status.isMember
-        ? `✅ ${cs.status.status}${
-            cs.status.since ? ` (${cs.status.since})` : ""
-          }`
-        : "Non-member"
+      cs.valid ? `✅ Member ${cs.since ? ` (${cs.since})` : ""}` : "Non-member"
     );
   }
 
