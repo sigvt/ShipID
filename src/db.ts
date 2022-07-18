@@ -1,9 +1,9 @@
-import PairModel, { Pair } from "./models/pair";
-import UserModel, { User } from "./models/user";
-import CertificateModel, { Certificate } from "./models/certificate";
+import { Attestation, PrismaClient, Tie, User } from "@prisma/client";
+
+const client = new PrismaClient();
 
 export async function getUserByDiscordId(discordId: string) {
-  return await UserModel.findOne({ discordId });
+  return await client.user.findFirst({ where: { discordId } });
 }
 
 export async function createOrUpdateUser({
@@ -13,18 +13,16 @@ export async function createOrUpdateUser({
   discordId: string;
   youtubeChannelId: string;
 }) {
-  const user = await getUserByDiscordId(discordId);
-  if (user) {
-    user.youtubeChannelId = youtubeChannelId;
-    return await user.save();
-  }
-
-  const newUser = await UserModel.create({
-    discordId,
-    youtubeChannelId,
+  const newOrUpdatedUser = await client.user.upsert({
+    where: { discordId },
+    update: { youtubeChannelId },
+    create: {
+      discordId,
+      youtubeChannelId,
+    },
   });
 
-  return newUser;
+  return newOrUpdatedUser;
 }
 
 export async function createPair({
@@ -35,13 +33,15 @@ export async function createPair({
   guildId: string;
   roleId: string;
   originChannelId: string;
-}): Promise<Pair> {
-  const pair = await PairModel.create({ guildId, roleId, originChannelId });
+}): Promise<Tie> {
+  const pair = await client.tie.create({
+    data: { guildId, roleId, originChannelId },
+  });
   return pair;
 }
 
-export async function getPairsForGuild(guildId: string): Promise<Pair[]> {
-  const pairs = await PairModel.find({ guildId });
+export async function getPairsForGuild(guildId: string): Promise<Tie[]> {
+  const pairs = await client.tie.findMany({ where: { guildId } });
   return pairs;
 }
 
@@ -51,8 +51,10 @@ export async function findCertificate({
 }: {
   user: User;
   originChannelId: string;
-}): Promise<Certificate | null> {
-  return await CertificateModel.findOne({ user, originChannelId });
+}): Promise<Attestation | null> {
+  return await client.attestation.findFirst({
+    where: { user, originChannelId },
+  });
 }
 
 export interface ModifyOptions {
@@ -67,19 +69,28 @@ export async function createOrUpdateCertificate({
   originChannelId,
   valid,
   since,
-}: ModifyOptions): Promise<Certificate> {
+}: ModifyOptions): Promise<Attestation> {
   const cert = await findCertificate({ user, originChannelId });
   if (cert) {
-    cert.valid = valid;
-    cert.since = since;
-    return await cert.save();
+    const updated = await client.attestation.update({
+      where: { id: cert.id },
+      data: {
+        valid,
+        since: since ?? null,
+      },
+    });
+    return updated;
   }
 
-  const newCert = await CertificateModel.create({
-    user,
-    originChannelId,
-    valid,
-    since,
+  const newCert = await client.attestation.create({
+    data: {
+      user: {
+        connect: user,
+      },
+      originChannelId,
+      valid,
+      since,
+    },
   });
 
   return newCert;

@@ -1,19 +1,19 @@
-import { Client, Intents } from "discord.js";
-import { HB_MONGO_URI } from "../constants";
+import { Client, GatewayIntentBits } from "discord.js";
+import { HONEYBEE_URI } from "../constants";
 import { Honeybee } from "../honeybee";
-import { log } from "../util";
+import { debugLog, log } from "../util";
 import { commands } from "./commands";
 import { CommandContext } from "./interfaces";
 
 export function createBot() {
-  const hb = new Honeybee(HB_MONGO_URI);
+  const hb = new Honeybee(HONEYBEE_URI);
 
   const context: CommandContext = { hb };
 
-  const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+  const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
   client.on("interactionCreate", async (interaction) => {
-    if (!interaction.isCommand()) return;
+    if (!interaction.isChatInputCommand()) return;
 
     const command = commands.find(
       (command) => command.data.name === interaction.commandName
@@ -33,16 +33,16 @@ export function createBot() {
   });
 
   client.once("ready", () => {
-    console.log("ready");
+    log("discord", "ready");
   });
 
   client.on("guildDelete", async (guild) => {
-    log("guildDelete", guild);
+    debugLog("guildDelete", guild);
     // const invalidSubs = await removeSubscriptionForGuild(guild.id);
   });
 
   client.on("channelDelete", async (channel) => {
-    log("channelDelete", channel);
+    debugLog("channelDelete", channel);
     // const invalidSubs = await removeSubscriptionForChannel(channel.id);
   });
 

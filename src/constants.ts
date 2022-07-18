@@ -16,11 +16,8 @@ assert(DISCORD_CLIENT_SECRET, "DISCORD_TOKEN is missing");
 export const DISCORD_TOKEN = process.env.DISCORD_TOKEN!;
 assert(DISCORD_TOKEN, "DISCORD_TOKEN is missing");
 
-export const MONGODB_URL = process.env.MONGODB_URL!;
-if (!isDev) assert(MONGODB_URL, "MONGODB_URL is missing");
-
-export const HB_MONGO_URI = process.env.HB_MONGO_URI!;
-if (!isDev) assert(HB_MONGO_URI);
+export const HONEYBEE_URI = process.env.HONEYBEE_URI!;
+if (!isDev) assert(HONEYBEE_URI);
 
 export const PORT = Number(process.env.PORT || 3000);
 

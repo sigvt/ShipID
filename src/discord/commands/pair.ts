@@ -1,7 +1,12 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction } from "discord.js";
+import {
+  ChannelType,
+  ChatInputCommandInteraction,
+  CommandInteraction,
+  PermissionsBitField,
+} from "discord.js";
 import { createPair } from "../../db";
-import { log } from "../../util";
+import { debugLog } from "../../util";
 
 export default {
   data: new SlashCommandBuilder()
@@ -19,25 +24,27 @@ export default {
         .setDescription("The role to tired with")
         .setRequired(true)
     ),
-  async execute(intr: CommandInteraction) {
+  async execute(intr: ChatInputCommandInteraction) {
     await assertValidModerator(intr);
 
-    const guild = intr.guild;
-    if (!guild) return log("!guild");
+    const { guild, options } = intr;
 
-    const channel = intr.options.getString("channel")!;
-    const role = intr.options.getRole("role")!;
+    if (!guild) return debugLog("!guild");
 
-    console.log("channel:", channel, "roleName:", role);
+    const channel = options.getString("channel")!;
+    const role = options.getRole("role")!;
+
+    debugLog("channel:", channel, "roleName:", role);
 
     const pair = await createPair({
       guildId: guild.id,
       roleId: role.id,
       originChannelId: channel,
     });
-    log(pair);
 
-    intr.reply({
+    debugLog(pair);
+
+    await intr.reply({
       content: `Success:
 Role: \`${role.name}\`
 Channel: https://www.youtube.com/channel/${channel}`,
@@ -46,12 +53,14 @@ Channel: https://www.youtube.com/channel/${channel}`,
 };
 
 async function assertValidModerator(intr: CommandInteraction) {
-  if (!(intr.channel && intr.channel.type === "GUILD_TEXT")) {
+  if (!(intr.channel && intr.channel.type === ChannelType.GuildText)) {
     throw new Error("Invalid channel");
   }
 
   const hasPermission =
-    intr.channel.permissionsFor(intr.user)?.has("MANAGE_CHANNELS") ?? false;
+    intr.channel
+      .permissionsFor(intr.user)
+      ?.has(PermissionsBitField.Flags.ManageChannels) ?? false;
 
   if (!hasPermission) {
     throw new Error("You are not allowed to run this command");

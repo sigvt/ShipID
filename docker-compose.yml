@@ -1,22 +1,29 @@
 version: "3.1"
 
 services:
-  mongo:
-    image: mongo:4
+  postgres:
+    image: postgres:12
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 5432:5432
     volumes:
-      - ./data/mongo:/data/db
+      - ./data/postgres:/var/lib/postgresql/data
 
   bot:
     build: .
     command: yarn dev
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://postgres@postgres:5432/postgres
+      DEBUG: shipid
     ports:
-      - "3000:3000"
+      - 3000:3000
     volumes:
       - ./lib:/app/lib
       - ./src:/app/src
-    env_file: .env
-    environment:
-      MONGODB_URL: mongodb://mongo:27017/shipid
-      DEBUG: shipid
+      - ./prisma:/app/prisma
     depends_on:
-      - mongo
+      - postgres
+    extra_hosts:
+      - mongo:${HONEYBEE_REAL_IP}

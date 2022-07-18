@@ -3,12 +3,22 @@
 ## Development Guide
 
 ```bash
-git clone https://github.com/holodata/ShipID.git && cd ShipID
+# clone repo
+git clone https://github.com/holodata/ShipID.git
+cd ShipID
 npm install
+
+# setup .env
 cp .env.placeholder .env
 vim .env
-npm run devcontainer
 
+# deploy commands
+npm run deploy-commands
+
+# fire up dev containers
+docker compose up --build
+
+docker compose exec bot yarn prisma db push
 ```
 
 ## Deploy Guide (Maintainers only)

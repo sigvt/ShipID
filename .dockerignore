@@ -1,11 +1,14 @@
 .env
 .envrc
+node_modules
+
 .husky
 .github
+.vscode
+*.md
+Makefile
 .prettierrc
 jest.config.js
-*.md
-node_modules
 /lib
 /src/**/*.test.ts
 /tmp

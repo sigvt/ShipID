@@ -1,0 +1,34 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model User {
+    discordId        String        @id
+    youtubeChannelId String?
+    attestations     Attestation[]
+}
+
+model Tie {
+    guildId         String // Target guild id
+    roleId          String // Member role
+    originChannelId String // Target YT channel
+
+    @@id([guildId, roleId, originChannelId])
+}
+
+model Attestation {
+    id              Int      @id @default(autoincrement())
+    attestedAt      DateTime @default(now())
+    valid           Boolean
+    since           String?
+    originChannelId String
+    user            User     @relation(fields: [userDiscordId], references: [discordId])
+    userDiscordId   String
+
+    @@unique([userDiscordId, originChannelId])
+}

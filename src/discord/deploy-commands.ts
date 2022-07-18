@@ -1,6 +1,7 @@
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
 import { DISCORD_CLIENT_ID, DISCORD_TOKEN } from "../constants";
+import { log } from "../util";
 import { commands } from "./commands";
 
 const guildId = process.env.DISCORD_GUILD_ID!;
@@ -9,7 +10,7 @@ const serializedCommands = commands.map((command) => command.data.toJSON());
 
 const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN);
 
-console.log(serializedCommands);
+log("commands", serializedCommands);
 
 (async () => {
   try {
@@ -20,7 +21,7 @@ console.log(serializedCommands);
       }
     );
 
-    console.log("Successfully registered application commands.");
+    log("commands", "Successfully registered application commands.");
   } catch (error) {
     console.error(error);
   }

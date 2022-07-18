@@ -6,10 +6,10 @@ export class Chat {
   @prop({ required: true, unique: true })
   public id!: string;
 
-  @prop({ required: true, allowMixed: true })
+  @prop({ required: true, allowMixed: Severity.ALLOW })
   public message!: YTRun[];
 
-  @prop({ allowMixed: true })
+  @prop({ allowMixed: Severity.ALLOW })
   public membership?: Membership;
 
   @prop()

@@ -1,11 +1,11 @@
 import { User } from "discord.js";
 import jwt from "jsonwebtoken";
 import { HOST, JWT_SECRET } from "../../constants";
-import { log } from "../../util";
+import { debugLog } from "../../util";
 import { JwtToken } from "../interfaces";
 
 export function onboardingPhase(user: User) {
-  log("onboardingPhase");
+  debugLog("onboardingPhase");
   const payload: JwtToken = {
     discordId: user.id,
     iat: Date.now(),

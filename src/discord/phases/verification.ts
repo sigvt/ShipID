@@ -1,4 +1,5 @@
-import { CommandInteraction } from "discord.js";
+import { User } from "@prisma/client";
+import { ChatInputCommandInteraction } from "discord.js";
 import { DateTime } from "luxon";
 import { LIFETIME } from "../../constants";
 import {
@@ -7,24 +8,23 @@ import {
   getPairsForGuild,
 } from "../../db";
 import { Honeybee } from "../../honeybee";
-import { User } from "../../models/user";
-import { log } from "../../util";
+import { debugLog } from "../../util";
 import { RoleChangeset } from "../interfaces";
 
 export async function getRoleEligibility(
-  intr: CommandInteraction,
+  intr: ChatInputCommandInteraction,
   user: User,
   hb: Honeybee
 ): Promise<RoleChangeset[] | undefined> {
   const guildId = intr.guild?.id;
   if (!guildId) {
-    log("!guildId");
+    debugLog("!guildId");
     return;
   }
 
   const pairs = await getPairsForGuild(guildId);
   if (!pairs) {
-    log("!pairs");
+    debugLog("!pairs");
     intr.reply({
       content: "This server is not configured yet. Ask admin first!",
       ephemeral: true,
@@ -32,7 +32,7 @@ export async function getRoleEligibility(
     return;
   }
 
-  log(
+  debugLog(
     "pairs",
     pairs.map((r) => r.roleId)
   );
@@ -70,6 +70,10 @@ async function fetchMembership({
   originChannelId: string;
   since?: Date;
 }) {
+  if (!user.youtubeChannelId) {
+    throw new Error("Missing YouTube channel id");
+  }
+
   const certificate = await findCertificate({
     user,
     originChannelId,
@@ -77,11 +81,11 @@ async function fetchMembership({
 
   if (
     certificate &&
-    Date.now() - certificate.updatedAt!.getTime() <
+    Date.now() - certificate.attestedAt!.getTime() <
       1000 * 60 * 60 * 24 * LIFETIME
   ) {
     // cache
-    log("cache hit", certificate);
+    debugLog("cache hit", certificate);
     return certificate;
   }
 
@@ -91,7 +95,7 @@ async function fetchMembership({
     since,
   });
 
-  log("new yt status", newStatus);
+  debugLog("new yt status", newStatus);
 
   const valid = newStatus !== undefined;
   const memberSince = newStatus?.since;

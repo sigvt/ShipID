@@ -1,4 +1,3 @@
-import { mongoose } from "@typegoose/typegoose";
 import express from "express";
 import http from "http";
 import {
@@ -7,19 +6,12 @@ import {
   DISCORD_TOKEN,
   HOST,
   isDev,
-  MONGODB_URL,
   PORT,
 } from "./constants";
-import { createBot } from "./discord/bot";
 import { createAuthHandler } from "./discord/auth";
+import { createBot } from "./discord/bot";
 import { startScheduler } from "./scheduler";
-
-// setup db
-mongoose.connect(MONGODB_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useCreateIndex: true,
-});
+import { log } from "./util";
 
 // setup discord bot
 const bot = createBot();
@@ -34,11 +26,11 @@ const app = express();
 
 app.use(discordOAuthHandler);
 
-const server = http.createServer(app);
+const authServer = http.createServer(app);
 
-// start server
-server.listen(PORT, () => {
-  console.log(`Listening at ${HOST} (${isDev ? "dev" : "prod"})`);
+// start auth server
+authServer.listen(PORT, () => {
+  log("auth", `ready -> ${HOST} (${isDev ? "dev" : "prod"})`);
 
   // start scheduler
   startScheduler();

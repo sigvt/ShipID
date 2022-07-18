@@ -1,11 +1,15 @@
-import { APIConnection } from "discord-api-types";
+import axios from "axios";
+import { APIConnection } from "discord-api-types/v9";
 import { Request, Response, Router } from "express";
 import jwt from "jsonwebtoken";
-import fetch from "node-fetch";
 import { JWT_SECRET } from "../constants";
 import { createOrUpdateUser } from "../db";
-import { log } from "../util";
+import { debugLog, errorLog } from "../util";
 import { JwtToken } from "./interfaces";
+
+interface Token {
+  access_token: string;
+}
 
 const DISCORD_AUTHORIZE_URL = "https://discord.com/api/oauth2/authorize";
 const DISCORD_TOKEN_URL = "https://discord.com/api/oauth2/token";
@@ -44,11 +48,14 @@ h1 {
 }
 
 async function getConnections(token: string): Promise<APIConnection[]> {
-  const res = await fetch("https://discord.com/api/users/@me/connections", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await axios.get<APIConnection[]>(
+    "https://discord.com/api/users/@me/connections",
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
   if (res.status !== 200) throw new Error(res.statusText);
-  return await res.json();
+  return res.data;
 }
 
 export function createAuthHandler({
@@ -60,19 +67,19 @@ export function createAuthHandler({
   clientSecret: string;
   redirectUri: string;
 }) {
-  async function getToken(code: string) {
+  async function getToken(code: string): Promise<Token> {
     const body = {
       client_id: clientId,
       client_secret: clientSecret,
       grant_type: "authorization_code",
-      code: code,
+      code,
       redirect_uri: redirectUri,
     };
-    const res = await fetch(DISCORD_TOKEN_URL, {
-      method: "POST",
-      body: new URLSearchParams(body),
-    });
-    return await res.json();
+    const res = await axios.post<Token>(
+      DISCORD_TOKEN_URL,
+      new URLSearchParams(body)
+    );
+    return res.data;
   }
 
   function authorize(req: Request, res: Response) {
@@ -125,7 +132,7 @@ export function createAuthHandler({
 
     // handle the code
     const discordId = id_token.discordId;
-    console.log(discordId);
+    debugLog(discordId);
 
     try {
       const token = await getToken(code);
@@ -147,7 +154,7 @@ export function createAuthHandler({
 
       // create user
       const user = await createOrUpdateUser({ discordId, youtubeChannelId });
-      log(channelName, user);
+      debugLog(channelName, user);
 
       renderHTML(
         res,
@@ -158,7 +165,7 @@ export function createAuthHandler({
         // invalid grant
         return res.redirect("/discord/authorize");
       }
-      console.log(err);
+      errorLog("auth", err);
       renderHTML(
         res.status(500),
         "Unexpected error has occurred. Ask admin (uetchy#1717)"

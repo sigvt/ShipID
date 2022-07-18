@@ -1,6 +1,6 @@
 import { Honeybee } from ".";
 
-const HB_MONGO_URI = process.env.HB_MONGO_URI;
+const HONEYBEE_URI = process.env.HONEYBEE_URI;
 const HB_TEST_CHANNEL_ID = process.env.HB_TEST_CHANNEL_ID;
 const HB_TEST_CHANNEL_ID_NE = process.env.HB_TEST_CHANNEL_ID_NE;
 const HB_TEST_ORIGIN_CHANNEL_ID = process.env.HB_TEST_ORIGIN_CHANNEL_ID;
@@ -9,7 +9,7 @@ let hb!: Honeybee;
 
 beforeAll(() => {
   console.time("hb");
-  hb = new Honeybee(HB_MONGO_URI!);
+  hb = new Honeybee(HONEYBEE_URI!);
   console.timeEnd("hb");
 });
 
