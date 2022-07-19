@@ -21,6 +21,10 @@ docker compose up --build
 docker compose exec bot yarn prisma db push
 ```
 
+```
+/pair channel:UC5CwaMl1eIgY8h02uZw7u8A role:@☄️Hoshiyomi
+```
+
 ## Deploy Guide (Maintainers only)
 
 ```bash

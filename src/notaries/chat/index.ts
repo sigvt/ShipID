@@ -1,11 +1,32 @@
 import { BeAnObject, ReturnModelType } from "@typegoose/typegoose/lib/types";
+import { HONEYBEE_URI } from "../../constants";
+import { debugLog } from "../../util";
 import { Chat } from "./chat";
 import connectionFactory from "./db";
+
+export interface GetMembershipStatusOptions {
+  authorChannelId: string;
+  originChannelId: string;
+  since?: Date;
+}
+
+var instance: Honeybee;
+
+export async function getMembershipStatusFromHoneybee(
+  options: GetMembershipStatusOptions
+) {
+  if (!instance) {
+    instance = new Honeybee(HONEYBEE_URI);
+  }
+
+  return instance.getMembershipStatus(options);
+}
 
 export class Honeybee {
   private Chat!: ReturnModelType<typeof Chat, BeAnObject>;
 
   constructor(mongoUri: string) {
+    debugLog("Honeybee instantiated");
     const { ChatModel } = connectionFactory(mongoUri);
     this.Chat = ChatModel;
   }
@@ -18,11 +39,7 @@ export class Honeybee {
     authorChannelId,
     originChannelId,
     since,
-  }: {
-    authorChannelId: string;
-    originChannelId: string;
-    since?: Date;
-  }) {
+  }: GetMembershipStatusOptions) {
     if (!since) {
       const now = new Date();
       const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);

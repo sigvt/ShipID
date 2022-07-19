@@ -3,9 +3,9 @@ import { APIConnection } from "discord-api-types/v9";
 import { Request, Response, Router } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../constants";
-import { createOrUpdateUser } from "../db";
+import { upsertUser } from "../db";
 import { debugLog, errorLog } from "../util";
-import { JwtToken } from "./interfaces";
+import { JwtToken } from "../discord/interfaces";
 
 interface Token {
   access_token: string;
@@ -153,12 +153,12 @@ export function createAuthHandler({
       const youtubeChannelId = youtubeConnection.id;
 
       // create user
-      const user = await createOrUpdateUser({ discordId, youtubeChannelId });
+      const user = await upsertUser({ discordId, youtubeChannelId });
       debugLog(channelName, user);
 
       renderHTML(
         res,
-        `Your YouTube account has successfully been confirmed. Return to Discord app and try \`/verify\` command again on the server where you want member-specific roles.`
+        `Your YouTube account has successfully been confirmed. Return to Discord app and try \`/verify\` command again on the server where you want member-specific roles at.`
       );
     } catch (err: any) {
       if (err.code === "400") {

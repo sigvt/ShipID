@@ -1,6 +1,6 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import { HONEYBEE_URI } from "../constants";
-import { Honeybee } from "../honeybee";
+import { Honeybee } from "../notaries/chat";
 import { debugLog, log } from "../util";
 import { commands } from "./commands";
 import { CommandContext } from "./interfaces";

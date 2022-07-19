@@ -8,7 +8,7 @@ import {
   isDev,
   PORT,
 } from "./constants";
-import { createAuthHandler } from "./discord/auth";
+import { createAuthHandler } from "./server/auth";
 import { createBot } from "./discord/bot";
 import { startScheduler } from "./scheduler";
 import { log } from "./util";
@@ -26,11 +26,11 @@ const app = express();
 
 app.use(discordOAuthHandler);
 
-const authServer = http.createServer(app);
+const server = http.createServer(app);
 
 // start auth server
-authServer.listen(PORT, () => {
-  log("auth", `ready -> ${HOST} (${isDev ? "dev" : "prod"})`);
+server.listen(PORT, () => {
+  log("http", `ready -> ${HOST} (${isDev ? "dev" : "prod"})`);
 
   // start scheduler
   startScheduler();

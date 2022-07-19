@@ -24,9 +24,9 @@ model Tie {
 model Attestation {
     id              Int      @id @default(autoincrement())
     attestedAt      DateTime @default(now())
-    valid           Boolean
-    since           String?
     originChannelId String
+    isMember        Boolean
+    since           String?
     user            User     @relation(fields: [userDiscordId], references: [discordId])
     userDiscordId   String
 

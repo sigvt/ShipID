@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { ChatInputCommandInteraction } from "discord.js";
-import { Honeybee } from "../honeybee";
+import { Honeybee } from "../notaries/chat";
 
 export interface CommandContext {
   hb: Honeybee;
@@ -18,7 +18,7 @@ export interface Command {
 
 export interface RoleChangeset {
   roleId: string;
-  valid: boolean;
+  isMember: boolean;
   since: string | null;
 }
 

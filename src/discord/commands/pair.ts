@@ -5,13 +5,13 @@ import {
   CommandInteraction,
   PermissionsBitField,
 } from "discord.js";
-import { createPair } from "../../db";
+import { createTie } from "../../db";
 import { debugLog } from "../../util";
 
 export default {
   data: new SlashCommandBuilder()
     .setName("pair")
-    .setDescription("Pair role with YouTube channel")
+    .setDescription("Pair membership role with YouTube channel")
     .addStringOption((option) =>
       option
         .setName("channel")
@@ -36,13 +36,13 @@ export default {
 
     debugLog("channel:", channel, "roleName:", role);
 
-    const pair = await createPair({
+    const tie = await createTie({
       guildId: guild.id,
       roleId: role.id,
       originChannelId: channel,
     });
 
-    debugLog(pair);
+    debugLog(tie);
 
     await intr.reply({
       content: `Success:

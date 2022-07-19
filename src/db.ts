@@ -1,12 +1,19 @@
 import { Attestation, PrismaClient, Tie, User } from "@prisma/client";
 
+export interface AttestationOptions {
+  user: User;
+  originChannelId: string;
+  isMember: boolean;
+  since?: string;
+}
+
 const client = new PrismaClient();
 
 export async function getUserByDiscordId(discordId: string) {
   return await client.user.findFirst({ where: { discordId } });
 }
 
-export async function createOrUpdateUser({
+export async function upsertUser({
   discordId,
   youtubeChannelId,
 }: {
@@ -25,7 +32,7 @@ export async function createOrUpdateUser({
   return newOrUpdatedUser;
 }
 
-export async function createPair({
+export async function createTie({
   guildId,
   roleId,
   originChannelId,
@@ -40,12 +47,12 @@ export async function createPair({
   return pair;
 }
 
-export async function getPairsForGuild(guildId: string): Promise<Tie[]> {
+export async function getTiesForGuild(guildId: string): Promise<Tie[]> {
   const pairs = await client.tie.findMany({ where: { guildId } });
   return pairs;
 }
 
-export async function findCertificate({
+export async function findAttestation({
   user,
   originChannelId,
 }: {
@@ -57,25 +64,18 @@ export async function findCertificate({
   });
 }
 
-export interface ModifyOptions {
-  user: User;
-  originChannelId: string;
-  valid: boolean;
-  since?: string;
-}
-
-export async function createOrUpdateCertificate({
+export async function upsertAttestation({
   user,
   originChannelId,
-  valid,
+  isMember,
   since,
-}: ModifyOptions): Promise<Attestation> {
-  const cert = await findCertificate({ user, originChannelId });
+}: AttestationOptions): Promise<Attestation> {
+  const cert = await findAttestation({ user, originChannelId });
   if (cert) {
     const updated = await client.attestation.update({
       where: { id: cert.id },
       data: {
-        valid,
+        isMember,
         since: since ?? null,
       },
     });
@@ -85,10 +85,10 @@ export async function createOrUpdateCertificate({
   const newCert = await client.attestation.create({
     data: {
       user: {
-        connect: user,
+        connect: { discordId: user.discordId },
       },
       originChannelId,
-      valid,
+      isMember,
       since,
     },
   });

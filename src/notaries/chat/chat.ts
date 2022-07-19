@@ -1,19 +1,16 @@
 import { modelOptions, prop, Severity } from "@typegoose/typegoose";
-import { Membership, YTRun } from "masterchat";
+import { Membership } from "masterchat";
 
 @modelOptions({ options: { allowMixed: Severity.ALLOW } })
 export class Chat {
   @prop({ required: true, unique: true })
   public id!: string;
 
-  @prop({ required: true, allowMixed: Severity.ALLOW })
-  public message!: YTRun[];
+  @prop({ required: true })
+  public message!: string;
 
   @prop({ allowMixed: Severity.ALLOW })
   public membership?: Membership;
-
-  @prop()
-  public authorName?: string;
 
   @prop({ required: true })
   public authorChannelId!: string;

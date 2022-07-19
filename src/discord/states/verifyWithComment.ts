@@ -1,20 +1,37 @@
 import { User } from "@prisma/client";
 import { ChatInputCommandInteraction } from "discord.js";
 import { DateTime } from "luxon";
-import { LIFETIME } from "../../constants";
+import { LIFETIME as DAYS_TO_EXPIRE } from "../../constants";
 import {
-  createOrUpdateCertificate,
-  findCertificate,
-  getPairsForGuild,
+  upsertAttestation,
+  findAttestation,
+  getTiesForGuild,
+  getUserByDiscordId,
 } from "../../db";
-import { Honeybee } from "../../honeybee";
+import { getMembershipStatusFromHoneybee, Honeybee } from "../../notaries/chat";
 import { debugLog } from "../../util";
+import { StateContext, State } from "../commands/reverify";
 import { RoleChangeset } from "../interfaces";
 
-export async function getRoleEligibility(
+export async function verifyWithCommentState(
   intr: ChatInputCommandInteraction,
-  user: User,
-  hb: Honeybee
+  context: StateContext
+): Promise<[State, StateContext]> {
+  const user = intr.user;
+  const maybeUser = await getUserByDiscordId(user.id);
+
+  if (!maybeUser) return [State.ONBOARD, {}];
+
+  const rolesToChange = await getRoleEligibility(intr, maybeUser);
+
+  if (!rolesToChange) return [State.END, {}];
+
+  return [State.APPLY_ROLE_CHANGES, { rolesToChange }];
+}
+
+async function getRoleEligibility(
+  intr: ChatInputCommandInteraction,
+  user: User
 ): Promise<RoleChangeset[] | undefined> {
   const guildId = intr.guild?.id;
   if (!guildId) {
@@ -22,7 +39,8 @@ export async function getRoleEligibility(
     return;
   }
 
-  const pairs = await getPairsForGuild(guildId);
+  const pairs = await getTiesForGuild(guildId);
+
   if (!pairs) {
     debugLog("!pairs");
     intr.reply({
@@ -41,7 +59,6 @@ export async function getRoleEligibility(
   for (const rm of pairs) {
     // fetch status from honeybee
     const status = await fetchMembership({
-      hb,
       user,
       originChannelId: rm.originChannelId,
       since: DateTime.now().minus({ days: 30 }).toJSDate(),
@@ -49,7 +66,7 @@ export async function getRoleEligibility(
 
     changesets.push({
       roleId: rm.roleId,
-      valid: status.valid,
+      isMember: status.isMember,
       since: status.since,
     });
   }
@@ -60,12 +77,10 @@ export async function getRoleEligibility(
  * Fetch and cache membership status
  */
 async function fetchMembership({
-  hb,
   user,
   originChannelId,
   since,
 }: {
-  hb: Honeybee;
   user: User;
   originChannelId: string;
   since?: Date;
@@ -74,22 +89,22 @@ async function fetchMembership({
     throw new Error("Missing YouTube channel id");
   }
 
-  const certificate = await findCertificate({
+  const att = await findAttestation({
     user,
     originChannelId,
   });
 
   if (
-    certificate &&
-    Date.now() - certificate.attestedAt!.getTime() <
-      1000 * 60 * 60 * 24 * LIFETIME
+    att &&
+    Date.now() - att.attestedAt!.getTime() <
+      1000 * 60 * 60 * 24 * DAYS_TO_EXPIRE
   ) {
     // cache
-    debugLog("cache hit", certificate);
-    return certificate;
+    debugLog("existing valid attestation found:", att);
+    return att;
   }
 
-  const newStatus = await hb.getMembershipStatus({
+  const newStatus = await getMembershipStatusFromHoneybee({
     authorChannelId: user.youtubeChannelId,
     originChannelId,
     since,
@@ -100,10 +115,10 @@ async function fetchMembership({
   const valid = newStatus !== undefined;
   const memberSince = newStatus?.since;
 
-  return await createOrUpdateCertificate({
+  return await upsertAttestation({
     user,
     originChannelId,
-    valid,
+    isMember: valid,
     since: memberSince,
   });
 }
